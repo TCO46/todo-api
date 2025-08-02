@@ -3,11 +3,11 @@ package config
 import "fmt"
 
 type DatabaseConfig struct {
-	Database string `env:"DATABASE_DB"`
-	Username string `env:"DATABASE_USER"`
-	Password string `env:"DATABASE_PASS"`
-	Port     int    `env:"DATABASE_PORT" envDefault:"5432"`
-	Host     string `env:"DATABASE_HOST" envDefault:"localhost"`
+	Database string `env:"DB_DATABASE"`
+	Username string `env:"DB_USERNAME"`
+	Password string `env:"DB_PASSWORD"`
+	Port     int    `env:"DB_PORT" envDefault:"5432"`
+	Host     string `env:"DB_HOST" envDefault:"localhost"`
 }
 
 func (cfg *DatabaseConfig) DatabaseURL() string {
