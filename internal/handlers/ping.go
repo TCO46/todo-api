@@ -9,7 +9,8 @@ import (
 type PingResponse struct {
 	Message string `json:"message"`
 }
-
+// PingExample	godoc
+// @Summary		Ping back a pong
 // @Description check if server is running
 // @Produce json
 // @Router / [get]

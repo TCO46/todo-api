@@ -1,0 +1,14 @@
+basePath: /
+info:
+  contact: {}
+  title: Todo API
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: check if server is running
+      produces:
+      - application/json
+      responses: {}
+      summary: Ping back a pong
+swagger: "2.0"

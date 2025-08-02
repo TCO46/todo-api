@@ -1,0 +1,21 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Todo API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "get": {
+                "description": "check if server is running",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Ping back a pong",
+                "responses": {}
+            }
+        }
+    }
+}
