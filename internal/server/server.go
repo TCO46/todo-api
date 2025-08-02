@@ -1,0 +1,36 @@
+package server
+
+import (
+	"fmt"
+	"net/http"
+	"time"
+
+	"github.com/caarlos0/env/v11"
+	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/joho/godotenv/autoload"
+
+	"github.com/patohru/todo-api/internal/config"
+	"github.com/patohru/todo-api/internal/database"
+)
+
+type Server struct {
+	db *pgxpool.Pool
+}
+
+func NewServer() *http.Server {
+	cfg, _ := env.ParseAs[config.ServerConfig]()
+
+	NewServer := &Server{
+		db: database.Init(),
+	}
+
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%d", cfg.Port),
+		Handler:      NewServer.RegisterRoutes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
+
+	return server
+}
