@@ -63,6 +63,6 @@ watch:
 
 # Swagger init
 swagger:
-	swag init -d ./internal/handlers -g ../../cmd/api/main.go	
+	swag init -d ./internal/server -g ../../cmd/api/main.go	
 
 .PHONY: all build run test clean watch docker-run docker-down itest
