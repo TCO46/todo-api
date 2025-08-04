@@ -3,9 +3,10 @@ package server
 import (
 	"net/http"
 
-	"github.com/patohru/todo-api/internal/handlers"
-	"github.com/patohru/todo-api/internal/middleware"
 	"github.com/gin-gonic/gin"
+
+	"github.com/patohru/todo-api/internal/server/ping"
+	"github.com/patohru/todo-api/internal/server/middleware"
 
 	_ "github.com/patohru/todo-api/docs"
 	swaggerfiles "github.com/swaggo/files"
@@ -13,13 +14,13 @@ import (
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	r := gin.Default()
+	g := gin.Default()
 
-	r.Use(middleware.Cors())
+	g.Use(middleware.Cors())
 
-	r.GET("/", handlers.Ping)
+	ping.RegisterRoutes(g)
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	return r
+	return g 
 }

@@ -1,4 +1,4 @@
-package handlers
+package ping
 
 import (
 	"net/http"
@@ -6,15 +6,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type PingRoutes struct{}
+
+func RegisterRoutes(g *gin.Engine) {
+	r := PingRoutes{}
+
+	g.GET("/", r.PingHandler)
+}
+
+
 type PingResponse struct {
 	Message string `json:"message"`
 }
+
 // PingExample	godoc
 // @Summary		Ping back a pong
 // @Description check if server is running
 // @Produce json
 // @Router / [get]
-func Ping(c *gin.Context) {
+func(r *PingRoutes) PingHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, PingResponse{
 		Message: "pong",
 	})
