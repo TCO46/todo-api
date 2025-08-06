@@ -30,14 +30,19 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (p
 }
 
 const getAccountByEmail = `-- name: GetAccountByEmail :one
-SELECT (id, password)
+SELECT id, password
 FROM accounts
 WHERE email = $1
 `
 
-func (q *Queries) GetAccountByEmail(ctx context.Context, email string) (interface{}, error) {
+type GetAccountByEmailRow struct {
+	ID       pgtype.UUID
+	Password string
+}
+
+func (q *Queries) GetAccountByEmail(ctx context.Context, email string) (GetAccountByEmailRow, error) {
 	row := q.db.QueryRow(ctx, getAccountByEmail, email)
-	var column_1 interface{}
-	err := row.Scan(&column_1)
-	return column_1, err
+	var i GetAccountByEmailRow
+	err := row.Scan(&i.ID, &i.Password)
+	return i, err
 }

@@ -4,6 +4,6 @@ VALUES (@email, @password)
 RETURNING id;
 
 -- name: GetAccountByEmail :one
-SELECT (id, password)
+SELECT id, password
 FROM accounts
 WHERE email = @email;
