@@ -17,6 +17,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	g := gin.Default()
 
 	g.Use(middleware.Cors())
+	g.Use(middleware.ErrorHandler())
 
 	ping.RegisterRoutes(g)
 
