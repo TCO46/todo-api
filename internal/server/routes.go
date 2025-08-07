@@ -5,9 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/patohru/todo-api/internal/server/ping"
 	"github.com/patohru/todo-api/internal/server/auth"
 	"github.com/patohru/todo-api/internal/server/middleware"
+	"github.com/patohru/todo-api/internal/server/ping"
+	"github.com/patohru/todo-api/internal/server/todo"
 
 	_ "github.com/patohru/todo-api/docs"
 	swaggerfiles "github.com/swaggo/files"
@@ -22,6 +23,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	auth.RegisterRoutes(g)
 	ping.RegisterRoutes(g)
+	todo.RegisterRoutes(g)
 
 	g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
