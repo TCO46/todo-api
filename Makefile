@@ -64,5 +64,6 @@ watch:
 # Swagger init
 swagger:
 	swag init -d ./internal/server -g ../../cmd/api/main.go	
-
+migrate:
+	migrate -database postgres://pat:12345@0.0.0.0:5432/todo?sslmode=disable -path internal/database/migrations/ up
 .PHONY: all build run test clean watch docker-run docker-down itest
