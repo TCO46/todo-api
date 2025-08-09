@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/moznion/go-optional"
 	"github.com/patohru/todo-api/internal/database"

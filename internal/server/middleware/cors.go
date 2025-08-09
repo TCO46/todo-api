@@ -2,8 +2,6 @@ package middleware
 
 import (
 	"github.com/patohru/todo-api/internal/config"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 
 	"github.com/caarlos0/env/v11"
 )
