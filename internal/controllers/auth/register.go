@@ -2,10 +2,9 @@ package auth
 
 import (
 	"context"
-	"net/http"
 
+	"github.com/go-fuego/fuego"
 	"github.com/patohru/todo-api/internal/database"
-	"github.com/patohru/todo-api/internal/server/middleware"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,38 +14,32 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
-func (r *AuthRoutes) RegisterHandler(c *gin.Context) {
-	ctx := context.Background()
+func (r *AuthRoutes) RegisterHandler(c fuego.ContextWithBody[database.CreateAccountParams]) (string, error) {
 
 	var request database.CreateAccountParams
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, middleware.ApiError{
-			Message: "Invalid register data",
-		})
-		return
+	request, err := c.Body()
+	if err != nil {
+		return "", fuego.BadRequestError{
+			Title: "Invalid register data",
+		}
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.Error(&middleware.ApiError{
-			Inner: err,
-			Code: http.StatusBadGateway,
-			Message: "Invalid register data",
-		})
-		return
+		return "", fuego.BadRequestError{
+			Title: "Invalid register data",
+		}
 	}
 	request.Password = string(hashedPassword)
 
 	queries := database.New(r.db) 
+	ctx := context.Background()
 	id, err := queries.CreateAccount(ctx, request)
 	if err != nil {
-		c.Error(&middleware.ApiError{
-			Inner: err,
-			Code: http.StatusBadRequest,
-			Message: "Account with given email already existed",
-		})
-		return
+		return "", fuego.BadRequestError{
+			Title: "Account with given email already existed",
+		}
 	}
 
-	c.String(http.StatusOK, id.String())
+	return id.String(), nil
 }
