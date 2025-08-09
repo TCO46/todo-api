@@ -21,4 +21,5 @@ func RegisterRoutes(g *gin.Engine) {
 	todo.POST("/todo/create", r.CreateTodoHandler)
 	todo.DELETE("/todo/:id", r.DeleteTodoHandler)
 	todo.GET("/todo/:id", r.GetTodoHandler)
+	todo.PATCH("/todo/:id", r.UpdateTodoHandler)
 }

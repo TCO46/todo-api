@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.10.1
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/joho/godotenv v1.5.1
+	github.com/moznion/go-optional v0.13.0
 )
 
 require (
