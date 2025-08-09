@@ -8,9 +8,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/patohru/todo-api/internal/server/ping"
-	"github.com/patohru/todo-api/internal/server/todo"
-	"github.com/patohru/todo-api/internal/server/auth"
+	"github.com/patohru/todo-api/internal/controllers/ping"
+	"github.com/patohru/todo-api/internal/controllers/todo"
+	"github.com/patohru/todo-api/internal/controllers/auth"
 
 	"github.com/patohru/todo-api/internal/config"
 )
