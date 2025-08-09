@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	optional "github.com/moznion/go-optional"
 )
 
 const createTodo = `-- name: CreateTodo :one
@@ -149,15 +150,15 @@ const updateTodo = `-- name: UpdateTodo :exec
 UPDATE todos
 SET
     title = COALESCE($1, title),
-    description = COALESCE($2, description),
+    description = COALESCE($2, content),
     priority = COALESCE($3, priority)
 WHERE id = $4 AND account_id = $5 AND is_done = false
 `
 
 type UpdateTodoParams struct {
-	Title       string
-	Description string
-	Priority    Priority
+	Title       optional.Option[string]
+	Description optional.Option[string]
+	Priority    optional.Option[Priority]
 	ID          uuid.UUID
 	AccountID   uuid.UUID
 }
