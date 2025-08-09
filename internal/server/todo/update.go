@@ -35,7 +35,7 @@ func (r *TodoRoutes) UpdateTodoHandler(c *gin.Context) {
 		c.Error(&middleware.ApiError{
 			Inner: err,
 			Code: http.StatusBadRequest,
-			Message: "Invalid create todo data",
+			Message: "Invalid update todo data",
 		})
 		return
 	}
