@@ -17,6 +17,8 @@ func RegisterRoutes(g *gin.Engine) {
 		db:				database.NewPool(),
 	}
 
-	g.POST("/todo/create", middleware.RequireAuthentication(), r.CreateTodoHandler)
-	g.GET("/todo/:id", middleware.RequireAuthentication(), r.GetTodoHandler)
+	todo := g.Group("/").Use(middleware.RequireAuthentication())
+	todo.POST("/todo/create", r.CreateTodoHandler)
+	todo.DELETE("/todo/:id", r.DeleteTodoHandler)
+	todo.GET("/todo/:id", r.GetTodoHandler)
 }
