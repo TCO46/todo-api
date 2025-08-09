@@ -8,7 +8,9 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	optional "github.com/moznion/go-optional"
 )
 
 const createTodo = `-- name: CreateTodo :one
@@ -18,20 +20,20 @@ RETURNING id
 `
 
 type CreateTodoParams struct {
-	AccountID   pgtype.UUID
+	AccountID   uuid.UUID
 	Title       string
 	Description string
 	Priority    Priority
 }
 
-func (q *Queries) CreateTodo(ctx context.Context, arg CreateTodoParams) (pgtype.UUID, error) {
+func (q *Queries) CreateTodo(ctx context.Context, arg CreateTodoParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createTodo,
 		arg.AccountID,
 		arg.Title,
 		arg.Description,
 		arg.Priority,
 	)
-	var id pgtype.UUID
+	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
@@ -42,8 +44,8 @@ WHERE id = $1 AND account_id = $2
 `
 
 type DeleteTodoParams struct {
-	ID        pgtype.UUID
-	AccountID pgtype.UUID
+	ID        uuid.UUID
+	AccountID uuid.UUID
 }
 
 func (q *Queries) DeleteTodo(ctx context.Context, arg DeleteTodoParams) error {
@@ -58,8 +60,8 @@ WHERE id = $1 AND account_id = $2
 `
 
 type GetTodoParams struct {
-	ID        pgtype.UUID
-	AccountID pgtype.UUID
+	ID        uuid.UUID
+	AccountID uuid.UUID
 }
 
 type GetTodoRow struct {
@@ -97,14 +99,14 @@ WHERE account_id = $1 AND
 `
 
 type GetTodosParams struct {
-	AccountID pgtype.UUID
+	AccountID uuid.UUID
 	Query     interface{}
 	Priority  interface{}
 	IsDone    interface{}
 }
 
 type GetTodosRow struct {
-	ID          pgtype.UUID
+	ID          uuid.UUID
 	Title       string
 	Description string
 	Priority    Priority
@@ -148,17 +150,17 @@ const updateTodo = `-- name: UpdateTodo :exec
 UPDATE todos
 SET
     title = COALESCE($1, title),
-    description = COALESCE($2, description),
+    description = COALESCE($2, content),
     priority = COALESCE($3, priority)
 WHERE id = $4 AND account_id = $5 AND is_done = false
 `
 
 type UpdateTodoParams struct {
-	Title       string
-	Description string
-	Priority    Priority
-	ID          pgtype.UUID
-	AccountID   pgtype.UUID
+	Title       optional.Option[string]
+	Description optional.Option[string]
+	Priority    optional.Option[Priority]
+	ID          uuid.UUID
+	AccountID   uuid.UUID
 }
 
 func (q *Queries) UpdateTodo(ctx context.Context, arg UpdateTodoParams) error {

@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/patohru/todo-api/internal/services/jwt"
 	"github.com/gin-gonic/gin"
+	"github.com/patohru/todo-api/internal/services/jwt"
 )
 
 const (
 	authrizaion				string = "Authorization"
-	bearer					string = "Bearer: "
+	bearer					string = "Bearer "
 	AuthorizationTokenKey	string = "token"
 )
 
@@ -18,7 +18,7 @@ func RequireAuthentication() gin.HandlerFunc {
 	jwtService := jwt.New()
 
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader(authrizaion)
+		authHeader := c.Request.Header.Get(authrizaion)
 		if authHeader == "" {
 			c.Error(&ApiError{
 				Code: http.StatusUnauthorized,
@@ -27,14 +27,11 @@ func RequireAuthentication() gin.HandlerFunc {
 			return
 		}
 
-		tokenString, isBearer := strings.CutPrefix(authHeader, bearer)
-		if !isBearer {
-			c.Error(&ApiError{
-				Code: http.StatusUnauthorized,
-				Message: "Missing authorization token",
-			})
-			return
+		if !strings.HasPrefix(authHeader, bearer) {
+		    c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header format must be 'Bearer <token>'"})
+		    return
 		}
+		tokenString := strings.TrimPrefix(authHeader, bearer)
 
 		token, err := jwtService.VerifyToken(tokenString)
 		if err != nil {

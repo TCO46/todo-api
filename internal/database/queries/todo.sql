@@ -23,9 +23,9 @@ WHERE account_id = @account_id AND
 -- name: UpdateTodo :exec
 UPDATE todos
 SET
-    title = COALESCE(@title, title),
-    description = COALESCE(@description, description),
-    priority = COALESCE(@priority, priority)
+    title = COALESCE(sqlc.narg('title'), title),
+    description = COALESCE(sqlc.narg('description'), content),
+    priority = COALESCE(sqlc.narg('priority'), priority)
 WHERE id = @id AND account_id = @account_id AND is_done = false;
 
 -- name: DeleteTodo :exec
