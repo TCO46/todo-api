@@ -2,8 +2,8 @@ package todo
 
 import (
 	"context"
-	"net/http"
 
+	"github.com/go-fuego/fuego"
 	"github.com/google/uuid"
 	"github.com/patohru/todo-api/internal/database"
 	"github.com/patohru/todo-api/internal/server/middleware"
@@ -16,22 +16,19 @@ type CreateRequest struct {
 	Priority	database.Priority
 }
 
-func (r *TodoRoutes) CreateTodoHandler(c *gin.Context) {
-	ctx := context.Background()
+func (r *TodoRoutes) CreateTodoHandler(c fuego.ContextWithBody[CreateRequest]) (string, error) {
 
-	var request CreateRequest
-	if err := c.BindJSON(&request); err != nil {
-		c.Error(&middleware.ApiError{
-			Inner: err,
-			Code: http.StatusBadRequest,
-			Message: "Invalid create todo data",
-		})
-		return
+	request, err := c.Body()
+	if err != nil {
+		return "", fuego.BadRequestError{
+			Title: "Invalid create todo data",
+		}
 	}
 
-	account_id := c.MustGet(middleware.AuthorizationTokenKey).(uuid.UUID)
+	account_id := c.Value(middleware.AuthorizationTokenKey).(uuid.UUID)
 
 	queries := database.New(r.db)
+	ctx := context.Background()
 	id, err := queries.CreateTodo(ctx, database.CreateTodoParams{
 		AccountID: account_id,
 		Title: request.Title,
@@ -39,13 +36,10 @@ func (r *TodoRoutes) CreateTodoHandler(c *gin.Context) {
 		Priority: request.Priority,
 	})
 	if err != nil {
-		c.Error(&middleware.ApiError{
-			Inner: err,
-			Code: http.StatusBadRequest,
-			Message: "Title already exist",
-		})
-		return
+		return "", fuego.BadRequestError{
+			Title: "Title already exist",
+		}
 	}
 
-	c.String(http.StatusOK, id.String())
+	return id.String(), nil
 }

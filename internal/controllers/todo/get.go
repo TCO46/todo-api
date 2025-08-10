@@ -2,25 +2,23 @@ package todo
 
 import (
 	"context"
-	"net/http"
 
+	"github.com/go-fuego/fuego"
 	"github.com/google/uuid"
 	"github.com/patohru/todo-api/internal/database"
 	"github.com/patohru/todo-api/internal/server/middleware"
 )
 
-func (r *TodoRoutes) GetTodoHandler(c *gin.Context) {
+func (r *TodoRoutes) GetTodoHandler(c fuego.ContextNoBody) (database.GetTodoRow, error) {
 	ctx := context.Background()
 
-	todo_id, err := uuid.Parse(c.Param("id"))
+	todo_id, err := uuid.Parse(c.PathParam("id"))
 	if err != nil {
-		c.Error(&middleware.ApiError{
-			Code: http.StatusBadRequest,
-			Message: "Require UUID v4",
-		})
-		return
+		return database.GetTodoRow{}, fuego.BadRequestError{
+			Title: "Required UUID v4",
+		}
 	}
-	account_id := c.MustGet(middleware.AuthorizationTokenKey).(uuid.UUID)
+	account_id := c.Value(middleware.AuthorizationTokenKey).(uuid.UUID)
 
 	queries := database.New(r.db)
 	todo, err := queries.GetTodo(ctx, database.GetTodoParams{
@@ -28,13 +26,10 @@ func (r *TodoRoutes) GetTodoHandler(c *gin.Context) {
 		ID: todo_id,
 	})
 	if err != nil {
-		c.Error(&middleware.ApiError{
-			Code: http.StatusBadRequest,
-			Message: "Cannot find todo with given id",
-		})
-		return
+		return database.GetTodoRow{}, fuego.BadRequestError{
+			Title: "Cannot find todo with given id",
+		}
 	}
 
-	c.JSON(http.StatusOK, todo)
-
+	return todo, nil
 }
