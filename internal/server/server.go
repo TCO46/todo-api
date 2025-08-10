@@ -2,13 +2,11 @@ package server
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/go-fuego/fuego"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
-	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	"github.com/patohru/todo-api/internal/controllers/ping"
 	"github.com/patohru/todo-api/internal/controllers/todo"
