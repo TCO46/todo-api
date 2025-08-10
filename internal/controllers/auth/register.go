@@ -16,7 +16,6 @@ type RegisterRequest struct {
 
 func (r *AuthRoutes) RegisterHandler(c fuego.ContextWithBody[database.CreateAccountParams]) (string, error) {
 
-	var request database.CreateAccountParams
 	request, err := c.Body()
 	if err != nil {
 		return "", fuego.BadRequestError{
