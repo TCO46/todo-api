@@ -2,9 +2,8 @@ package todo
 
 import (
 	"context"
-	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/go-fuego/fuego"
 	"github.com/google/uuid"
 	"github.com/moznion/go-optional"
 	"github.com/patohru/todo-api/internal/database"
@@ -18,29 +17,24 @@ type UpdateRequest struct {
 	Priority	optional.Option[database.Priority]	`json:"priority,omitempty"`
 }
 
-func (r *TodoRoutes) UpdateTodoHandler(c *gin.Context) {
+func (r *TodoRoutes) UpdateTodoHandler(c fuego.ContextWithBody[UpdateRequest]) (any, error) {
 	ctx := context.Background()
 
-	todo_id, err := uuid.Parse(c.Param("id"))
+	todo_id, err := uuid.Parse(c.PathParam("id"))
 	if err != nil {
-		c.Error(&middleware.ApiError{
-			Code: http.StatusBadRequest,
-			Message: "Require UUID v4",
-		})
-		return
+		return nil, fuego.BadRequestError{
+			Title: "Require UUID v4",
+		}
 	}
 
-	var request	UpdateRequest 
-	if err := c.BindJSON(&request); err != nil {
-		c.Error(&middleware.ApiError{
-			Inner: err,
-			Code: http.StatusBadRequest,
-			Message: "Invalid create todo data",
-		})
-		return
+	request, err := c.Body()
+	if err != nil {
+		return nil, fuego.BadRequestError{
+			Title: "Invalid update todo data",
+		}
 	}
 
-	account_id := c.MustGet(middleware.AuthorizationTokenKey).(uuid.UUID)
+	account_id := c.Value(middleware.AuthorizationTokenKey).(uuid.UUID)
 
 	queries := database.New(r.db)
 	if err := queries.UpdateTodo(ctx, database.UpdateTodoParams{
@@ -48,12 +42,10 @@ func (r *TodoRoutes) UpdateTodoHandler(c *gin.Context) {
 		ID: todo_id,
 		Title: request.Title,
 	}); err != nil {
-		c.Error(&middleware.ApiError{
-			Code: http.StatusBadRequest,
-			Message: "Cannot update with given id",
-		})
-		return
+		return nil, fuego.BadRequestError{
+			Title: "Cannot update with given id",
+		}
 	}
 
-	c.Status(http.StatusOK)
+	return nil, nil
 }

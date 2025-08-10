@@ -1,10 +1,11 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/go-fuego/fuego"
 	"github.com/patohru/todo-api/internal/services/jwt"
 )
 
@@ -14,35 +15,28 @@ const (
 	AuthorizationTokenKey	string = "token"
 )
 
-func RequireAuthentication() gin.HandlerFunc {
+func RequireAuthentication(next http.Handler) http.Handler {
 	jwtService := jwt.New()
 
-	return func(c *gin.Context) {
-		authHeader := c.Request.Header.Get(authrizaion)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get(authrizaion)
 		if authHeader == "" {
-			c.Error(&ApiError{
-				Code: http.StatusUnauthorized,
-				Message: "Missing authorization header",
+			fuego.SendJSONError(w, nil, fuego.BadRequestError{
+				Title: "Missing authorization header",
 			})
-			return
 		}
 
-		if !strings.HasPrefix(authHeader, bearer) {
-		    c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header format must be 'Bearer <token>'"})
-		    return
-		}
 		tokenString := strings.TrimPrefix(authHeader, bearer)
 
 		token, err := jwtService.VerifyToken(tokenString)
 		if err != nil {
-			c.Error(&ApiError{
-				Inner: err,
-				Code: http.StatusForbidden,
-				Message: "Invalid authorization token",
+			fuego.SendJSONError(w, nil, fuego.BadRequestError{
+				Title: "Invalid authorization token",
 			})
-			return	
+			return
 		}
 
-		c.Set(AuthorizationTokenKey, token)
-	}
+		ctx := context.WithValue(r.Context(), AuthorizationTokenKey, token)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

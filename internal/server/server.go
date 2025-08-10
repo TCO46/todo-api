@@ -2,35 +2,41 @@ package server
 
 import (
 	"fmt"
-	"net/http"
-	"time"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/go-fuego/fuego"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 
+	"github.com/patohru/todo-api/internal/controllers/ping"
+	"github.com/patohru/todo-api/internal/controllers/todo"
+	"github.com/patohru/todo-api/internal/controllers/auth"
+	
+	"github.com/patohru/todo-api/internal/server/middleware"
 	"github.com/patohru/todo-api/internal/config"
-	"github.com/patohru/todo-api/internal/database"
 )
 
 type Server struct {
 	db *pgxpool.Pool
 }
 
-func NewServer() *http.Server {
+func NewServer() *fuego.Server {
 	cfg, _ := env.ParseAs[config.ServerConfig]()
 
-	NewServer := &Server{
-		db: database.NewPool(),
-	}
+	s := fuego.NewServer(
+		fuego.WithAddr(fmt.Sprintf(":%d", cfg.Port)),
+		fuego.WithGlobalMiddlewares(middleware.Cors),
+		fuego.WithEngineOptions(
+			fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
+				DisableDefaultServer: true,
+				DisableMessages:      true,
+			}),
+		),
+	)
 
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.Port),
-		Handler:      NewServer.RegisterRoutes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
+	auth.RegisterRoutes(s)
+	ping.RegisterRoutes(s)
+	todo.RegisterRoutes(s)
 
-	return server
+	return s
 }
