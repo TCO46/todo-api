@@ -2,16 +2,19 @@ package server
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/go-fuego/fuego"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	"github.com/patohru/todo-api/internal/controllers/ping"
 	"github.com/patohru/todo-api/internal/controllers/todo"
 	"github.com/patohru/todo-api/internal/controllers/auth"
-
+	
+	"github.com/patohru/todo-api/internal/server/middleware"
 	"github.com/patohru/todo-api/internal/config"
 )
 
@@ -24,6 +27,13 @@ func NewServer() *fuego.Server {
 
 	s := fuego.NewServer(
 		fuego.WithAddr(fmt.Sprintf(":%d", cfg.Port)),
+		fuego.WithGlobalMiddlewares(middleware.Cors),
+		fuego.WithEngineOptions(
+			fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
+				DisableDefaultServer: true,
+				DisableMessages:      true,
+			}),
+		),
 	)
 
 	auth.RegisterRoutes(s)
